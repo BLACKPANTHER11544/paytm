@@ -13,12 +13,14 @@ datasource db {
 }
 
 model User {
-  id             Int             @id @default(autoincrement())
-  email          String          @unique
-  name           String
-  password       String
-  PhoneNumber    String
-  AccountBalance AccountBalance?
+  id                   Int             @id @default(autoincrement())
+  email                String          @unique
+  name                 String
+  password             String
+  PhoneNumber          String
+  AccountBalance       AccountBalance?
+  sentTransactions     Transaction[]   @relation("SentTransactions")
+  receivedTransactions Transaction[]   @relation("ReceivedTransactions")
 }
 
 model AccountBalance {
@@ -26,4 +28,18 @@ model AccountBalance {
   amount Int
   userId Int  @unique
   user   User @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  amount    Int
+  createdAt DateTime @default(now()) // Automatically saves the exact time!
+
+  // Who sent it?
+  fromUserId Int
+  fromUser   User @relation("SentTransactions", fields: [fromUserId], references: [id])
+
+  // Who received it?
+  toUserId Int
+  toUser   User @relation("ReceivedTransactions", fields: [toUserId], references: [id])
 }
