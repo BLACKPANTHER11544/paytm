@@ -10,7 +10,11 @@ const UserSignUPSchemaZod = z.object({
     name: z.string().min(5).max(20),
     email: z.email(),
     password: z.string().min(5).max(20),
-    PhoneNumber: z.string().min(10).max(10)
+    PhoneNumber: z.string().min(10).max(10),
+    /*we could have used zod for Accountbalance also, but here we
+     are hardcoding the AccountBalance, and not getting balance from bank hence we
+     won't be using zod for AccountBalance
+    */
 });
 export const userSignUp = async (req, res) => {
     try {
@@ -29,12 +33,21 @@ export const userSignUp = async (req, res) => {
         const { name, email, password, PhoneNumber } = userBody.data;
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+        const Balance = 1 + Math.random() * 100000;
         const newUser = await prismaClient.user.create({
             data: {
                 name: name,
                 email: email,
                 password: hashedPassword,
                 PhoneNumber: PhoneNumber,
+                AccountBalance: {
+                    create: {
+                        amount: Balance
+                    }
+                }
+            },
+            include: {
+                AccountBalance: true
             }
         });
         return res.status(200).json({ message: "user created succefully", user: newUser });
@@ -167,6 +180,37 @@ export const GetUserDetail = async (req, res) => {
     catch (error) {
         console.error({ "User Details Error": error });
         return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+export const FindUser = async (req, res) => {
+    try {
+        const UserName = req.query.user;
+        if (!UserName) {
+            return res.status(404).json({ message: "User with such UserName was not Found" });
+        }
+        const FoundUserArray = await prismaClient.user.findMany({
+            where: {
+                name: {
+                    contains: UserName.toString(),
+                    mode: "insensitive"
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                PhoneNumber: true,
+                // AccountBalance : true
+            }
+        });
+        if (!FoundUserArray || FoundUserArray.length <= 0) {
+            return res.status(404).json({ message: "Didn't found such username in DB" });
+        }
+        return res.status(200).json({ message: "Found an array of users", userArray: FoundUserArray });
+    }
+    catch (error) {
+        console.error({ "Find User Error": error });
+        return res.status(500).json({ message: "Internal server error" });
     }
 };
 //# sourceMappingURL=userController.js.map
