@@ -1,8 +1,50 @@
 import { PaytmIcon } from "../Components/paytmSvg"
 import { CheckIcon } from "../Components/checkIcon"
-import { Link } from "react-router-dom"
+import { useRef } from "react"
+import { Link, useNavigate } from "react-router-dom"
 
 export default function SignUp() {
+  const UserName = useRef<HTMLInputElement>(null) ;
+  const Email= useRef<HTMLInputElement>(null) ;
+  const Password= useRef<HTMLInputElement>(null) ;
+  const PhoneNumber= useRef<HTMLInputElement>(null) ;
+  const navigate = useNavigate() ;
+
+  async function SignUpUserHandler(){
+    try {
+      const UserNameValue = UserName.current?.value ; 
+      const EmailValue = Email.current?.value ; 
+      const PasswordValue = Password.current?.value ; 
+      const PhoneNumberValue = PhoneNumber.current?.value ; 
+      if(!UserNameValue || !EmailValue || !PasswordValue || !PhoneNumberValue){
+        alert("All fields are required and can't be empty"); 
+        return;
+      }
+      const SendRequest = await fetch("http://localhost:3000/api/v1/users/signUp",{
+        method:"POST" , 
+        headers: {
+         "Content-Type" : "application/json"
+        },
+        body: JSON.stringify({
+          name :UserNameValue , 
+          email: EmailValue , 
+          password : PasswordValue , 
+          PhoneNumber: PhoneNumberValue
+        })
+      })
+      if(SendRequest.ok){
+        const response = await SendRequest.json() ; 
+        console.log("User SignUp SuccessFully", {usertoken : response.token});
+        localStorage.setItem("token",response.token);
+        navigate("/SignIn")
+      }else{
+        alert("Incorrect Credential.")
+      }
+    } catch (error) {
+      console.error({"Backend server busy, try again later": error}); 
+      alert("Incorrect Credentails"); 
+    }
+  }
   return (
     <>
       <div className="flex h-screen w-screen bg-white overflow-hidden">
@@ -68,6 +110,7 @@ export default function SignUp() {
             <input 
               type="text" 
               placeholder="Username" 
+              ref={UserName}
               className="w-full max-w-sm px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
             />
 
@@ -75,6 +118,7 @@ export default function SignUp() {
             <input 
               type="email" 
               placeholder="Enter Email" 
+              ref={Email}
               className="w-full max-w-sm px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
             />
 
@@ -82,6 +126,7 @@ export default function SignUp() {
             <input 
               type="tel" 
               placeholder="Phone Number" 
+              ref={PhoneNumber}
               className="w-full max-w-sm px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
             />
             
@@ -89,10 +134,11 @@ export default function SignUp() {
             <input 
               type="password" 
               placeholder="Create Password" 
+              ref={Password}
               className="w-full max-w-sm px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
             />
             
-            <button className="w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2">
+            <button onClick={SignUpUserHandler} className="w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2">
               Sign Up
             </button>
             

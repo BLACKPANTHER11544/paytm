@@ -1,8 +1,46 @@
 import { PaytmIcon } from "../Components/paytmSvg"
 import { CheckIcon } from "../Components/checkIcon"
-import { Link } from "react-router-dom"
+import {  useRef } from "react"
+import { Link, useNavigate } from "react-router-dom"
 
 export default function Home() {
+
+  const Email = useRef<HTMLInputElement>(null) ; 
+  const Password = useRef<HTMLInputElement>(null) ;
+  const navigate = useNavigate() ; 
+
+  async function SignInUserHandler(){
+   try {
+     const emailValue = Email.current?.value ;
+     const password = Password.current?.value ; 
+    if(! emailValue || !password){
+      alert("Username/Password field can't be empty")
+    }
+    const SendRequest = await fetch("http://localhost:3000/api/v1/users/signIn", {
+      method : "POST" , 
+      headers : {
+        "Content-Type" : "application/json"
+      }, 
+      body : JSON.stringify({
+          email : emailValue , 
+          password : password 
+      })
+    })
+    if(SendRequest.ok){
+      const reposne = await SendRequest.json() ;
+      console.log("SuccessFully Signed-Up", {token : reposne.token}); 
+      localStorage.setItem("token",reposne.token)
+      navigate("/dashboard"); 
+    }else{
+      alert("Provided Email/Password are incorrect"); 
+    }
+   } catch (error) {
+    console.error({"Error while signUp from frontend":error}); 
+    alert("Backend server busy, try again later"); 
+   }
+  }
+
+ 
   return (
     <>
       <div className="flex h-screen w-screen bg-white overflow-hidden">
@@ -67,20 +105,24 @@ export default function Home() {
             <input 
               type="text" 
               placeholder="Enter Email" 
+              name = "Email"
+              ref= {Email}
               className="w-full max-w-sm px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
             />
             
             <input 
               type="password" 
               placeholder="Password" 
+              name="Password"
+              ref= {Password}
               className="w-full max-w-sm px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
             />
             
-            <button className="w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2">
+            <button onClick={SignInUserHandler} className="w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2">
               Log in
             </button>
             
-            <button className="w-full max-w-sm bg-transparent border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium py-3 rounded-lg transition-colors">
+            <button  className="w-full max-w-sm bg-transparent border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium py-3 rounded-lg transition-colors">
               <Link to="/SignUp" className="block w-full h-full">Create new account</Link>
             </button>
             
