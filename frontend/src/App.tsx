@@ -22,6 +22,7 @@ function App() {
           <Route path="/SignUp" element={<SignUp/>}/>
           <Route path="/SignIn" element={<Home/>}/>
           <Route path="/" element={<Home/>}/>
+          
 
          // Protected Routes
           <Route element={<ProtectedRoute/>}>
@@ -33,9 +34,6 @@ function App() {
 
          // Error Route
           <Route path="*" element={<ErrorPage/>}/>
-
-         //Fallback 
-          <Route path="/Fallback" element={<LoadingFallback/>}/>
         </Routes>
       </Suspense>
     </BrowserRouter>

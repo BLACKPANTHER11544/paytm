@@ -1,8 +1,10 @@
 
-
+import { NavBar } from "../Components/navbar"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { PaytmIcon } from "../Components/paytmSvg"
+import { useEffect} from "react"
+import { Spinner } from "../Components/loaderSpinner"
+import { useRef } from "react"
 
 // Mock contact list data for demonstration purposes
 const INITIAL_CONTACTS = [
@@ -15,7 +17,46 @@ const INITIAL_CONTACTS = [
 
 export default function DashBoard() {
   const navigate = useNavigate()
+  let AccountBalance = useRef<HTMLDivElement | null>(null); 
+  // const [balance , setBalance ] = useState<String| null>(null); 
   const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(()=>{
+    const userToken = localStorage.getItem("token"); 
+    async function BackendCall(){
+     try {
+      if(!userToken){
+        console.log({message:"Invalid User token/ User token not found"}); 
+        alert("Can't verify User / Unauthorized access"); 
+        return ;
+      }
+      const SendRequest = await fetch("http://localhost:3000/api/v1/account/CheckBalance",{
+        method : "GET", 
+        headers:{
+          "Content-Type" : "application/json", 
+          "token" : userToken,
+        }
+      })
+      if(SendRequest.ok){
+        const response = await SendRequest.json() ; 
+        console.log(response);
+
+      // the UserBalance object on response, is comming from backend, see accountController for better underStanding.
+
+       if(!AccountBalance.current){
+        console.log("Balance text can't be changed") ;
+        return ;
+       }
+       AccountBalance.current.textContent = response.UserBalance.amount ;
+      }
+    } catch (error) {
+      console.error("Unable to send request to db"); 
+      alert("Backend Busy");
+      return ; 
+    }
+    }
+    BackendCall() ;
+  },[])
 
   // Filter contacts list on-the-fly based on user typing
   const filteredContacts = INITIAL_CONTACTS.filter(
@@ -26,22 +67,7 @@ export default function DashBoard() {
 
   return (
     <div className="min-h-screen w-screen bg-slate-50 text-black flex flex-col pt-16">
-      
-      {/* 🌟 Fixed Top Navigation Bar 🌟 */}
-      <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between z-50">
-        <div>
-          <PaytmIcon />
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="font-bold text-sm text-slate-800">Hello, User</p>
-            <p className="text-xs text-slate-500">Premium Account</p>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg select-none shadow-sm">
-            U
-          </div>
-        </div>
-      </nav>
+      <NavBar/>
 
       {/* Main Panel Body Viewport Area */}
       <main className="flex-1 w-full max-w-4xl mx-auto p-6 md:p-8 space-y-6">
@@ -50,7 +76,7 @@ export default function DashBoard() {
         <div className="w-full bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
             <h3 className="text-slate-500 text-sm font-semibold tracking-wide uppercase">Your Wallet Balance</h3>
-            <p className="text-4xl font-black text-slate-900 mt-1">₹12,450.50</p>
+            <div className="text-4xl font-black text-slate-900 mt-1" ref={AccountBalance}><Spinner/></div>
           </div>
           <div>
             <button 
