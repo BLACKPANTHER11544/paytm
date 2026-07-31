@@ -1,31 +1,55 @@
 import { useState } from "react"
 import { PaytmIcon } from "../Components/paytmSvg"
 import { Link } from "react-router-dom"
+import { NavBar } from "../Components/navbar"
+import { useNavigate } from "react-router-dom"
 
 export default function SendMoney() {
-  const [email, setEmail] = useState("")
-  const [amount, setAmount] = useState("")
+  const [email, setEmail] = useState("");
+  const [amount, setAmount] = useState("");
+  const navigate = useNavigate()
+
+  async function MakePayment() {
+    try {
+      const userToken = localStorage.getItem("token"); 
+      if (!userToken) {
+        console.log("unAuthorized Operation"); 
+        return;
+      }
+      if (!email || !amount) {
+        console.log("Email/Amount Can't be empty"); 
+        return;
+      }
+      const SendRequest = await fetch("http://localhost:3000/api/v1/account/TransferMoney", {
+        method: "POST", 
+        headers: {
+          "Content-Type": "application/json",
+          "token": userToken 
+        }, 
+        body: JSON.stringify({
+          email: email,
+          SendingAmount: parseInt(amount), 
+        })
+      });
+      if (SendRequest.ok) {
+        const response = await SendRequest.json(); 
+        console.log("Successfully Transferred Money", { message: response });
+        alert("Transaction SucessFull");
+        setEmail("") ; 
+        setAmount("")
+        navigate("/dashboard") ;
+        return;
+      }
+    } catch (error) {
+      console.error({ "Error while sending money": error });
+      return; 
+    }
+  }
 
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between z-50">
-        <div>
-          <PaytmIcon />
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="font-bold text-sm text-slate-800">Hello, User</p>
-            <p className="text-xs text-slate-500">Premium Account</p>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg select-none shadow-sm">
-            U
-          </div>
-        </div>
-      </nav>
-      {/* Centered container filling the whole screen */}
+      <NavBar/>
       <div className="flex h-screen w-screen bg-slate-50 items-center justify-center p-4 overflow-hidden">
-        
-        {/* Form container card centered in the page */}
         <div className="flex flex-col justify-center items-center w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl p-8 gap-4">
           
           <div className="mb-4 scale-125">
@@ -56,7 +80,7 @@ export default function SendMoney() {
           </div>
 
           {/* Dynamic visual transaction breakdown box */}
-          {amount && (
+          {amount && Number(amount) > 0 && (
             <div className="w-full bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm mt-1">
               <div className="flex justify-between text-slate-500 mb-1">
                 <span>Transfer Amount</span>
@@ -73,12 +97,12 @@ export default function SendMoney() {
             </div>
           )}
           
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2 shadow-sm">
+          <button onClick={MakePayment} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2 shadow-sm">
             Confirm & Pay
           </button>
           
           <div className="text-slate-500 text-sm mt-2">
-            Want to review balances?{" "}
+            Payments are completely secure. {" "}
             <Link to="/dashboard" className="text-blue-600 font-bold hover:underline">
               Back to Dashboard
             </Link>

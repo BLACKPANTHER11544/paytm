@@ -21,6 +21,7 @@ export default function DashBoard() {
   // const [balance , setBalance ] = useState<String| null>(null); 
   const [searchQuery, setSearchQuery] = useState("")
 
+
   useEffect(()=>{
     const userToken = localStorage.getItem("token"); 
     async function BackendCall(){
@@ -58,6 +59,10 @@ export default function DashBoard() {
     BackendCall() ;
   },[])
 
+
+
+
+
   // Filter contacts list on-the-fly based on user typing
   const filteredContacts = INITIAL_CONTACTS.filter(
     (contact) =>
@@ -83,7 +88,7 @@ export default function DashBoard() {
               onClick={() => navigate("/send")}
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl transition-colors shadow-sm text-sm"
             >
-              + Add Money
+              Send 
             </button>
           </div>
         </div>
@@ -92,16 +97,21 @@ export default function DashBoard() {
         <div className="w-full bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900">Send Money to Anyone</h2>
-            <p className="text-slate-500 text-sm">Search via full username name or register email identifier</p>
+            <p className="text-slate-500 text-sm">Search via register email identifier</p>
           </div>
+
+          {
+
+            // handler -> useDebounce and let the user complete write -> once done writing, put the e.target.value into the state-variable/ref, search db for that user.
+          }
 
           {/* Search bar wrapper element */}
           <div className="relative">
             <input 
               type="text"
-              placeholder="Search by name or email address..."
+              placeholder="Search by email address..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e)=>setSearchQuery(e.target.value)}
               className="w-full px-4 py-3 pl-11 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
             />
             {/* Simple Inline Search Vector Icon Placeholder */}
@@ -145,3 +155,13 @@ export default function DashBoard() {
     </div>
   )
 }
+
+
+/*
+the Search bar will only be used to let the user, type the other user's emails -> don't make continuos calls, use debounce hook.
+
+the below section will show previous transactions for, you sending the money to other, frequent send 
+
+
+
+*/

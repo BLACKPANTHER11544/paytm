@@ -44,15 +44,7 @@ function App() {
 
 
 
-      {/* <div className='bg-black text-amber-500 h-screen w-screen flex '>
-        <div className='flex flex-col flex-1/3 justify-center items-center border-amber-50 border-2'>
-            <h1 className='text-2xl text-amber-50'>hello</h1>
-        </div>
-        <div className='flex flex-col flex-2/3 justify-center items-center  border-amber-300 border-2'>
-            <h1 className='text-2xl text-amber-50'>there</h1>
-        </div>
-      </div> 
-      */}
+
     </>
   )
 }

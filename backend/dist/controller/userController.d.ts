@@ -5,4 +5,5 @@ export declare const UserUpdate: (req: Request, res: Response) => Promise<Respon
 export declare const DeleteUser: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 export declare const GetUserDetail: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 export declare const FindUser: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const FindAllUser: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 //# sourceMappingURL=userController.d.ts.map

@@ -221,3 +221,21 @@ export const FindUser = async (req:Request , res : Response)=>{
     return res.status(500).json({message: "Internal server error"})
    }
 }
+
+export const FindAllUser = async(req:Request , res:Response)=>{
+   try {
+     const UserId = req.userId ; 
+        if(!UserId){
+            return res.status(401).json({message:"Unauthorized Access"}); 
+        }
+     const SendRequest = await prismaClient.user.findMany() ; 
+     if(!SendRequest){
+        console.log("Didn't find inthing in db"); 
+        return res.status(404).json({message : "Didn't find inthing in db"}); 
+     }
+     return res.status(200).json({message : "SucessFully Fetched all users", AllUser : SendRequest}) ;
+   } catch (error) {
+     console.error({"Can't get all users":error})
+     res.status(500).json({message : "Internal Server Error"});
+   }
+}
