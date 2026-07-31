@@ -42,6 +42,7 @@ export default function SendMoney() {
       }
     } catch (error) {
       console.error({ "Error while sending money": error });
+      alert("Transaction Failed"); 
       return; 
     }
   }

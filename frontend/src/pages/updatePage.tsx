@@ -96,6 +96,12 @@ export default function UpdateUser() {
             <button className="w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2">
               Save Changes
             </button>
+             <div className="text-slate-500 text-sm mt-2">
+           
+            <Link to="/dashboard" className="text-blue-600 font-bold hover:underline">
+              Back to Dashboard
+            </Link>
+          </div>
             
           </div>
         </div>
