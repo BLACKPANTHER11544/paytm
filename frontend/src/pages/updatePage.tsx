@@ -1,8 +1,87 @@
 import { PaytmIcon } from "../Components/paytmSvg"
 import { CheckIcon } from "../Components/checkIcon"
 import { Link } from "react-router-dom"
+import { useEffect, useRef } from "react"
 
 export default function UpdateUser() {
+  const userNameRef = useRef<HTMLInputElement | null>(null); 
+  const emailRef = useRef<HTMLInputElement | null>(null); 
+  const phoneNumberRef = useRef<HTMLInputElement | null>(null); 
+  const passwordRef = useRef<HTMLInputElement | null>(null); 
+  const userToken = localStorage.getItem("token"); 
+
+    useEffect(()=>{
+    try {
+      const userToken = localStorage.getItem("token"); 
+      if(!userToken){
+        console.log("UnAutherized Access"); 
+        alert("UnAutherized Access") ; 
+        return ;
+      }
+      const UserDetails = async()=>{
+        const SendRequest = await fetch("http://localhost:3000/api/v1/users/profile",{
+          method : "GET", 
+          headers : {
+            "Content-Type" : "application/json", 
+            "token" : userToken , 
+          }
+        })
+        if(SendRequest.ok){
+          const response = await SendRequest.json(); 
+          console.log(response); 
+         if(!userNameRef.current || !emailRef.current || !phoneNumberRef.current){
+          console.log("UI Error"); 
+          alert("UI Error"); 
+          return ; 
+         }
+         userNameRef.current.value = response.user.name ; 
+         emailRef.current.value = response.user.email ; 
+         phoneNumberRef.current.value = response.user.PhoneNumber
+          return ;
+        }
+      }
+      UserDetails();
+      
+    } catch (error) {
+      console.error({"Error while getting user's details" : error}); 
+      alert("Error while getting user's details"); 
+      return;
+    }
+  },[userToken])
+
+
+  async function UpdateProfile(){
+    if(!userToken){
+      console.log("UnAutherized Access"); 
+      alert("UnAutherized Access");
+      return ; 
+    }
+     try {
+        const  sendReuqest = await fetch("http://localhost:3000/api/v1/users/updateUser",{
+          method : "PUT", 
+          headers: {
+            "Content-Type": "application/json", 
+            "token": userToken , 
+          }, 
+          body : JSON.stringify({
+            name : userNameRef.current?.value, 
+            email : emailRef.current?.value, 
+            PhoneNumber : phoneNumberRef.current?.value,
+            password : passwordRef.current?.value
+          })
+        }) 
+        if(sendReuqest.ok){
+          const response = await sendReuqest.json() ;
+          console.log(response);
+          return ;
+        }    
+     } catch (error) {
+      console.error({"Error While Updating the User": error}); 
+      alert("Error While Updating the User"); 
+      return;
+     }
+  }
+
   return (
     <>
       <div className="flex h-screen w-screen bg-white overflow-hidden">
@@ -18,7 +97,7 @@ export default function UpdateUser() {
             </div>
           </div>
           
-          {/* Main Hero Content Area */}
+          {/* Main Hero Content Area */}  
           <div className="flex justify-center items-center flex-col w-4/5 h-screen">
             <div className="flex flex-col">
               <h1 className="text-4xl font-extrabold text-black p-5">Modify Your <span className="text-blue-600">Credentials</span></h1>
@@ -58,28 +137,31 @@ export default function UpdateUser() {
             <h3 className="text-black font-bold text-2xl mb-1">Update Profile</h3>
             
             <div className="w-full max-w-sm flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Username</label>
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{userNameRef.current?.value}</label>
               <input 
                 type="text" 
                 placeholder="Enter new username" 
+                ref={userNameRef}
                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black text-sm"
               />
             </div>
 
             <div className="w-full max-w-sm flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{emailRef.current?.value}</label>
               <input 
                 type="email" 
                 placeholder="Enter new email" 
+                ref={emailRef}
                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black text-sm"
               />
             </div>
 
             <div className="w-full max-w-sm flex flex-col gap-1">
-              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone Number</label>
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{phoneNumberRef.current?.value}</label>
               <input 
                 type="text" 
                 placeholder="Enter new phone number" 
+                ref={phoneNumberRef}
                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black text-sm"
               />
             </div>
@@ -89,11 +171,12 @@ export default function UpdateUser() {
               <input 
                 type="password" 
                 placeholder="Enter new password" 
+                ref={passwordRef}
                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black text-sm"
               />
             </div>
             
-            <button className="w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2">
+            <button onClick={UpdateProfile} className="w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2">
               Save Changes
             </button>
              <div className="text-slate-500 text-sm mt-2">

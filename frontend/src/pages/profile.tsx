@@ -1,8 +1,51 @@
 import { PaytmIcon } from "../Components/paytmSvg"
 import { CheckIcon } from "../Components/checkIcon"
 import { Link } from "react-router-dom"
+import { useEffect,useRef } from "react"
 
 export default function Profile() {
+  const usernameRef = useRef<HTMLSpanElement | null>(null) ; 
+  const emailRef = useRef<HTMLSpanElement| null>(null); 
+  const phoneNumberRef = useRef<HTMLSpanElement | null>(null); 
+
+  useEffect(()=>{
+    try {
+      const userToken = localStorage.getItem("token"); 
+      if(!userToken){
+        console.log("UnAutherized Access"); 
+        alert("UnAutherized Access") ; 
+        return ;
+      }
+      const UserDetails = async()=>{
+        const SendRequest = await fetch("http://localhost:3000/api/v1/users/profile",{
+          method : "GET", 
+          headers : {
+            "Content-Type" : "application/json", 
+            "token" : userToken , 
+          }
+        })
+        if(SendRequest.ok){
+          const response = await SendRequest.json(); 
+          console.log(response); 
+         if(!usernameRef.current || !emailRef.current || !phoneNumberRef.current){
+          console.log("UI Error"); 
+          alert("UI Error"); 
+          return ; 
+         }
+         usernameRef.current.textContent = response.user.name ; 
+         emailRef.current.textContent = response.user.email ; 
+         phoneNumberRef.current.textContent = response.user.PhoneNumber
+          return ;
+        }
+      }
+      UserDetails();
+      
+    } catch (error) {
+      console.error({"Error while getting user's details" : error}); 
+      alert("Error while getting user's details"); 
+      return;
+    }
+  },[])
   return (
     <>
       <div className="flex h-screen w-screen bg-white overflow-hidden">
@@ -60,19 +103,19 @@ export default function Profile() {
             {/* Username Row */}
             <div className="w-full max-w-sm flex flex-row justify-between items-center px-4 py-3  rounded-lg bg-white">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Username -</span>
-              <span className="text-black font-medium">johndoe_99</span>
+              <span className="text-black font-medium" ref={usernameRef}>{usernameRef.current?.textContent}</span>
             </div>
 
             {/* Email Row */}
             <div className="w-full max-w-sm flex flex-row justify-between items-center px-4 py-3  rounded-lg bg-white">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email -</span>
-              <span className="text-black font-medium">johndoe@example.com</span>
+              <span className="text-black font-medium" ref={emailRef}>{emailRef.current?.textContent}</span>
             </div>
 
             {/* Phone Number Row */}
             <div className="w-full max-w-sm flex flex-row justify-between items-center px-4 py-3  rounded-lg bg-white">
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone Number -</span>
-              <span className="text-black font-medium">+91 98765 43210</span>
+              <span className="text-black font-medium" ref={phoneNumberRef}>{phoneNumberRef.current?.textContent}</span>
             </div>
             
             <button className="w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors mt-2">
