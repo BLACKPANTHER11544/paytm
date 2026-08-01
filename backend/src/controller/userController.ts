@@ -127,7 +127,7 @@ export const UserUpdate = async (req: Request, res:Response)=> {
             name : true , 
             email : true , 
             PhoneNumber : true, 
-            password : true 
+            // password : true 
         }
     })
     return res.status(200).json({message : "Profile Updated SuccessFully", Updated_user : UpdateChanges})
@@ -151,7 +151,7 @@ export const DeleteUser = async(req :Request , res :Response)=>{
     // Remove the DeletedUser from json, before final push 
     return res.status(200).json({
         message : "User deleted SucceFully",
-        DeletedUser
+        // DeletedUser
     })
     } catch (error) {
     console.error({"Deleted user error": error})
@@ -177,7 +177,7 @@ export const GetUserDetail = async(req:Request, res:Response)=>{
                 name : true , 
                 email: true , 
                 PhoneNumber : true, 
-                password : true
+                // password : true
             }
         })
         if(!UserDetail){

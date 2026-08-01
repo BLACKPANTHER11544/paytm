@@ -72,7 +72,7 @@ export default function UpdateUser() {
         }) 
         if(sendReuqest.ok){
           const response = await sendReuqest.json() ;
-          console.log(response);
+          // console.log(response);
           return ;
         }    
      } catch (error) {

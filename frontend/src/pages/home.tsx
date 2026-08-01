@@ -28,7 +28,7 @@ export default function Home() {
     })
     if(SendRequest.ok){
       const reposne = await SendRequest.json() ;
-      console.log("SuccessFully Signed-Up", {token : reposne.token}); 
+      console.log("SuccessFully Signed-Up"); 
       localStorage.setItem("token",reposne.token)
       navigate("/dashboard"); 
     }else{

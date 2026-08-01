@@ -120,7 +120,7 @@ export const UserUpdate = async (req, res) => {
                 name: true,
                 email: true,
                 PhoneNumber: true,
-                password: true
+                // password : true 
             }
         });
         return res.status(200).json({ message: "Profile Updated SuccessFully", Updated_user: UpdateChanges });
@@ -144,7 +144,7 @@ export const DeleteUser = async (req, res) => {
         // Remove the DeletedUser from json, before final push 
         return res.status(200).json({
             message: "User deleted SucceFully",
-            DeletedUser
+            // DeletedUser
         });
     }
     catch (error) {
@@ -169,7 +169,7 @@ export const GetUserDetail = async (req, res) => {
                 name: true,
                 email: true,
                 PhoneNumber: true,
-                password: true
+                // password : true
             }
         });
         if (!UserDetail) {

@@ -33,7 +33,7 @@ export default function SendMoney() {
       });
       if (SendRequest.ok) {
         const response = await SendRequest.json(); 
-        console.log("Successfully Transferred Money", { message: response });
+        console.log("Successfully Transferred Money");
         alert("Transaction SucessFull");
         setEmail("") ; 
         setAmount("")

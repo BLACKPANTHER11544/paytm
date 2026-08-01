@@ -34,7 +34,7 @@ export default function SignUp() {
       })
       if(SendRequest.ok){
         const response = await SendRequest.json() ; 
-        console.log("User SignUp SuccessFully", {usertoken : response.token});
+        console.log("User SignUp SuccessFully", );
         localStorage.setItem("token",response.token);
         navigate("/SignIn")
       }else{

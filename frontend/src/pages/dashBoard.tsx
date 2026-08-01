@@ -6,24 +6,26 @@ import { useEffect} from "react"
 import { Spinner } from "../Components/loaderSpinner"
 import { useRef } from "react"
 
-// Mock contact list data for demonstration purposes
-const INITIAL_CONTACTS = [
-  { id: 1, name: "Aarav Sharma", email: "aarav@gmail.com" },
-  { id: 2, name: "Priya Patel", email: "priya.p@yahoo.com" },
-  { id: 3, name: "Rohan Verma", email: "rohanv@outlook.com" },
-  { id: 4, name: "Ananya Iyer", email: "ananya@gmail.com" },
-  { id: 5, name: "Amit Mishra", email: "amit.m@gmail.com" },
-]
+
+type User = {
+  id: number
+  name: string
+  email: string
+  PhoneNumber : string 
+}
 
 export default function DashBoard() {
   const navigate = useNavigate()
-  let AccountBalance = useRef<HTMLDivElement | null>(null); 
-  // const [balance , setBalance ] = useState<String| null>(null); 
+  let AccountBalance = useRef<HTMLDivElement | null>(null);
+  const [user, setUser] = useState<User[]>([])
+  // const [balance , setBalance ] = useState<String| null>(null);
   const [searchQuery, setSearchQuery] = useState("")
+  const userToken = localStorage.getItem("token")
+
 
 
   useEffect(()=>{
-    const userToken = localStorage.getItem("token"); 
+   
     async function BackendCall(){
      try {
       if(!userToken){
@@ -40,7 +42,7 @@ export default function DashBoard() {
       })
       if(SendRequest.ok){
         const response = await SendRequest.json() ; 
-        console.log(response);
+        // console.log(response);
 
       // the UserBalance object on response, is comming from backend, see accountController for better underStanding.
 
@@ -59,13 +61,44 @@ export default function DashBoard() {
     BackendCall() ;
   },[])
 
+  useEffect(()=>{
+   async function PopulateUserState(){
+      try {
+        if(!userToken){
+          console.log("UnAutherized Access"); 
+          alert("UnAutherized Access"); 
+          return ; 
+        }
+       const sendRequest = await fetch("http://localhost:3000/api/v1/users/getAllUsers",{
+        method : "GET", 
+        headers : {
+          "Content-Type" : "application/json", 
+          "token" :userToken, 
+        }
+       })
+       if(sendRequest.ok){
+        const response = await sendRequest.json() ; 
+        // console.log(response); 
+        setUser(response.AllUser);
+        return ;
+       }
+      } catch (error) {
+      console.error("Unable to send request to db"); 
+      alert("Backend Busy");
+      return ; 
+      }
+    }
+    PopulateUserState();
+  },[userToken])
+
 
 
 
 
   // Filter contacts list on-the-fly based on user typing
-  const filteredContacts = INITIAL_CONTACTS.filter(
+  const filteredContacts = user.filter(
     (contact) =>
+    
       contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       contact.email.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -157,11 +190,3 @@ export default function DashBoard() {
 }
 
 
-/*
-the Search bar will only be used to let the user, type the other user's emails -> don't make continuos calls, use debounce hook.
-
-the below section will show previous transactions for, you sending the money to other, frequent send 
-
-
-
-*/
